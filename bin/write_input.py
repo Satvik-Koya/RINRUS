@@ -113,7 +113,7 @@ if __name__ == '__main__':
     # general options
     parser.add_argument('-m', dest='multiplicity', default=1, type=int, help='multiplicity')
     parser.add_argument('-c', dest='ligand_charge', default=0, type=int, help='charge of ligand')
-    parser.add_argument('-format',dest='fmat',default=None,help="input file format eg.'gaussian','qchem','gau-xtb','orca','psi4-fsapt'")
+    parser.add_argument('-format',dest='fmat',default=None,help="input file format eg.'gaussian','qchem','gau-xtb','orca','psi4','psi4-fsapt'")
     parser.add_argument('-intmp', dest='input_tmp', default=None, help='input file template (uses ones in RINRUS/templates/ if not specified)')
     parser.add_argument('-inpn', dest='inp_name', default='1.inp', help='input name')
     parser.add_argument('-basisinfo',dest='basisinfo',default=None,help="'intmp' if in template file, use dictionary otherwise")
@@ -224,6 +224,8 @@ if __name__ == '__main__':
         write_xtb_input('%s/%s'%(wdir,inp_name),int_tmp,charge,multi,pic_atom,tot_charge,res_count)
     elif ifmat == "orca":
         write_orca_input('%s/%s'%(wdir,inp_name),int_tmp,charge,multi,pic_atom,tot_charge,res_count,hopt)
+    elif ifmat == "psi4":
+        write_psi4_input('%s/%s'%(wdir,inp_name),int_tmp,charge,multi,pic_atom,tot_charge,res_count)
     elif ifmat == "psi4-fsapt":
         seed = args.seed
         if inp_name == "1.inp":
@@ -231,4 +233,3 @@ if __name__ == '__main__':
         write_psi4_fsapt_input('%s/%s'%(wdir,inp_name),int_tmp,charge,multi,pic_atom,tot_charge,res_count,seed)
     else:
         print("ERROR: 'format' not set. Please provide an input format for your calculations!")
-

@@ -404,6 +404,79 @@ def write_orca_input(inp_name,inp_temp,charge,multiplicity,pic_atom,tot_charge,r
     inp.close()
 
 """
+write psi4 input files using psi4 template file
+"""
+def write_psi4_input(inp_name,inp_temp,charge,multiplicity,pic_atom,tot_charge,res_count):
+    ### From input_template file ###
+    ### memory
+    ### set_num_threads
+    ### molecule
+    ### set_globals
+    ### driver
+    ### method
+
+    memory = None
+    threads = None
+    mol = []
+    setglob = []
+    driver = None
+    method = None
+
+    with open(inp_temp) as f:
+        lines = f.readlines()
+    for line in lines:
+        if line.startswith('#') or not line.strip():
+            continue
+        key, sep, value = line.partition(':')
+        if not sep:
+            continue
+        key = key.strip()
+        value = value.strip()
+        if key == 'memory':
+            memory = value
+        elif key == 'set_num_threads':
+            threads = value
+        elif key == 'molecule':
+            mol = [v.strip() for v in value.split(',') if v.strip()]
+        elif key == 'set_globals':
+            setglob = [v.strip() for v in value.split(',') if v.strip()]
+        elif key in ['driver', 'task']:
+            driver = value
+        elif key in ['method', 'energy']:
+            method = value
+
+    if driver is None:
+        driver = 'energy'
+    if method is None:
+        method = 'scf'
+
+    ## write input
+    inp = open('%s'%inp_name,'w')
+    if memory:
+        inp.write("memory %s\n"%memory)
+    if threads:
+        inp.write("set_num_threads(%s)\n"%threads)
+    inp.write("\n")
+    inp.write("# Source: %s\n"%res_count)
+    inp.write("molecule frame {\n")
+    inp.write("%s %s\n"%(charge+tot_charge,multiplicity))
+    for atom in pic_atom:
+        inp.write("%1s %8.3f %8.3f %8.3f\n"%(atom[14].strip(),atom[8],atom[9],atom[10]))
+    if mol:
+        inp.write("\n")
+        for m in mol:
+            inp.write("\t%s\n"%m)
+    inp.write("} \n \n")
+    if setglob:
+        inp.write("set globals {\n")
+        for g in setglob:
+            inp.write("\t%s\n"%g)
+        inp.write("} \n \n")
+    inp.write("%s('%s')\n"%(driver,method))
+
+    inp.close()
+
+"""
 write psi4 fsapt input file
 """
 def write_psi4_fsapt_input(inp_name,inp_temp,charge,multiplicity,pic_atom,tot_charge,res_count,seed):
@@ -471,4 +544,3 @@ def write_psi4_fsapt_input(inp_name,inp_temp,charge,multiplicity,pic_atom,tot_ch
     inp.write("energy('%s')\n"%energy)
 
     inp.close()
-

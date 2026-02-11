@@ -1,0 +1,6 @@
+memory: 120 GB
+set_num_threads: 16
+molecule: units angstrom, no_reorient, symmetry c1
+set_globals: basis jun-cc-pvdz, scf_type df, guess sad
+driver: energy
+method: mp2
