@@ -4,7 +4,6 @@ at university of memphis.
 Date 8.10.2022
 """
 import os, sys, re, filecmp
-from numpy import *
 import argparse
 from read_write_pdb import *
 from glob import glob
@@ -526,4 +525,3 @@ def write_psi4_fsapt_input(inp_name,inp_temp,charge,multiplicity,pic_atom,tot_ch
     inp.write("energy('%s')\n"%energy)
 
     inp.close()
-
