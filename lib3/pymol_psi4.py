@@ -5,8 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence, Set
-import re
+from typing import List, Optional, Sequence, Set
 
 from atom_element import Atoms
 
@@ -301,14 +300,18 @@ def convert_pymol_pdb_to_psi4(
     threads: int = 8,
     exclude_waters: bool = False,
     exclude_ions: bool = False,
+    allowed_altlocs: Optional[Set[str]] = None,
+    ion_resnames: Optional[Set[str]] = None,
     freeze_mode: str = "none",
     freeze_spec: str = "",
     is_dft_override: Optional[bool] = None,
 ) -> str:
     atoms = parse_pdb_atoms(
         pdb_path,
+        allowed_altlocs=allowed_altlocs,
         exclude_waters=exclude_waters,
         exclude_ions=exclude_ions,
+        ion_resnames=ion_resnames,
     )
     freeze_indices = map_frozen_atoms(atoms, freeze_mode=freeze_mode, freeze_spec=freeze_spec)
     basename = Path(output_path).with_suffix("").name

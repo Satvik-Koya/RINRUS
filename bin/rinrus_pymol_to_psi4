@@ -27,7 +27,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mem", type=int, default=8, help="Memory in GB")
     parser.add_argument("--threads", type=int, default=8, help="Number of threads")
     parser.add_argument("--exclude-waters", action="store_true", help="Exclude water residues (HOH/WAT/H2O)")
-    parser.add_argument("--exclude-ions", action="store_true", help="Exclude common monoatomic ions")
+    parser.add_argument("--exclude-ions", action="store_true", help="Exclude common ions (configurable via --ion-resnames)")
+    parser.add_argument("--ion-resnames", default="", help="Comma-separated ion residue names to treat as ions")
+    parser.add_argument("--altlocs", default=",A", help="Comma-separated altloc identifiers to keep (default: blank and A)")
     parser.add_argument("--freeze-mode", choices=["none", "pdb-serial", "atom-index"], default="none")
     parser.add_argument("--freeze", default="", help="Atom freeze list, e.g. '1,2,3-10'")
     parser.add_argument("--is-dft", dest="is_dft", action="store_true", default=None, help="Force-enable DFT grid settings")
@@ -42,6 +44,16 @@ def main() -> int:
     if args.freeze and args.freeze_mode == "none":
         parser.error("--freeze requires --freeze-mode pdb-serial or atom-index")
 
+    if args.mult < 1:
+        parser.error("--mult must be >= 1")
+
+    altlocs = {token.strip().upper() for token in args.altlocs.split(",")}
+    if "" not in altlocs and " " in altlocs:
+        altlocs.add("")
+    ion_resnames = None
+    if args.ion_resnames.strip():
+        ion_resnames = {tok.strip().upper() for tok in args.ion_resnames.split(",") if tok.strip()}
+
     try:
         convert_pymol_pdb_to_psi4(
             pdb_path=args.input_pdb,
@@ -55,6 +67,8 @@ def main() -> int:
             threads=args.threads,
             exclude_waters=args.exclude_waters,
             exclude_ions=args.exclude_ions,
+            allowed_altlocs=altlocs,
+            ion_resnames=ion_resnames,
             freeze_mode=args.freeze_mode,
             freeze_spec=args.freeze,
             is_dft_override=args.is_dft,

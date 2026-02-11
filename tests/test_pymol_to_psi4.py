@@ -63,6 +63,17 @@ class TestPyMOLPsi4Converter(unittest.TestCase):
         with self.assertRaises(ValueError):
             map_frozen_atoms(atoms, freeze_mode="pdb-serial", freeze_spec="999")
 
+
+    def test_custom_ion_filter_list(self):
+        pdb = (
+            pdb_line("HETATM", 1, "ZN", " ", "ZN", "A", 1, 0, 0, 0, "ZN")
+            + pdb_line("HETATM", 2, "CU", " ", "CUA", "A", 2, 1, 0, 0, "CU")
+            + pdb_line("ATOM", 3, "CA", " ", "ALA", "A", 3, 2, 0, 0, "C")
+        )
+        path = self.write_tmp_pdb(pdb)
+        atoms = parse_pdb_atoms(path, exclude_ions=True, ion_resnames={"CUA"})
+        self.assertEqual([a.serial for a in atoms], [1, 3])
+
     def test_opt_input_contains_constraints(self):
         pdb = pdb_line("ATOM", 1, "N", " ", "GLY", "A", 1, 0, 0, 0, "N")
         path = self.write_tmp_pdb(pdb)

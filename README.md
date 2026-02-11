@@ -85,7 +85,7 @@ rinrus_pymol_to_psi4 model.pdb -o input.dat --charge 0 --mult 1 --job energy
 Optional filters and constraints:
 
 ```bash
-rinrus_pymol_to_psi4 model.pdb -o input.dat --charge 0 --mult 1 --job opt --exclude-waters --exclude-ions --freeze-mode pdb-serial --freeze "12,15,18-25"
+rinrus_pymol_to_psi4 model.pdb -o input.dat --charge 0 --mult 1 --job opt --exclude-waters --exclude-ions --freeze-mode pdb-serial --freeze "12,15,18-25" --altlocs ",A" --ion-resnames "ZN,FE,MG"
 ```
 
 
