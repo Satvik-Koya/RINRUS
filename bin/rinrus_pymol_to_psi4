@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Convert PyMOL-exported PDB files to runnable Psi4 input files."""
+
+import argparse
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+LIB3 = ROOT / "lib3"
+if str(LIB3) not in sys.path:
+    sys.path.insert(0, str(LIB3))
+
+from pymol_psi4 import convert_pymol_pdb_to_psi4
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Convert a PyMOL/PDB structure (ATOM/HETATM) into a Psi4 input file."
+    )
+    parser.add_argument("input_pdb", help="Input PDB file from PyMOL")
+    parser.add_argument("-o", "--output", required=True, help="Output Psi4 input filename (e.g., input.dat)")
+    parser.add_argument("--charge", type=int, required=True, help="Total molecular charge")
+    parser.add_argument("--mult", type=int, required=True, help="Spin multiplicity")
+    parser.add_argument("--method", default="b3lyp-d3bj", help="QM method/functional")
+    parser.add_argument("--basis", default="def2-svp", help="Basis set")
+    parser.add_argument("--job", choices=["energy", "opt", "freq"], default="energy", help="Psi4 job type")
+    parser.add_argument("--mem", type=int, default=8, help="Memory in GB")
+    parser.add_argument("--threads", type=int, default=8, help="Number of threads")
+    parser.add_argument("--exclude-waters", action="store_true", help="Exclude water residues (HOH/WAT/H2O)")
+    parser.add_argument("--exclude-ions", action="store_true", help="Exclude common monoatomic ions")
+    parser.add_argument("--freeze-mode", choices=["none", "pdb-serial", "atom-index"], default="none")
+    parser.add_argument("--freeze", default="", help="Atom freeze list, e.g. '1,2,3-10'")
+    parser.add_argument("--is-dft", dest="is_dft", action="store_true", default=None, help="Force-enable DFT grid settings")
+    parser.add_argument("--not-dft", dest="is_dft", action="store_false", help="Force-disable DFT grid settings")
+    return parser
+
+
+def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    if args.freeze and args.freeze_mode == "none":
+        parser.error("--freeze requires --freeze-mode pdb-serial or atom-index")
+
+    try:
+        convert_pymol_pdb_to_psi4(
+            pdb_path=args.input_pdb,
+            output_path=args.output,
+            charge=args.charge,
+            multiplicity=args.mult,
+            method=args.method,
+            basis=args.basis,
+            job=args.job,
+            mem_gb=args.mem,
+            threads=args.threads,
+            exclude_waters=args.exclude_waters,
+            exclude_ions=args.exclude_ions,
+            freeze_mode=args.freeze_mode,
+            freeze_spec=args.freeze,
+            is_dft_override=args.is_dft,
+        )
+    except ValueError as exc:
+        parser.exit(2, f"ERROR: {exc}\n")
+
+    print(f"Wrote Psi4 input: {args.output}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -74,6 +74,21 @@ The entire processed-PDB-to-input-file RINRUS workflow can be run at once using 
 Full usage instructions are described in [bin/](bin/README.md).
 
 
+### PyMOL to Psi4 conversion
+
+Use `bin/rinrus_pymol_to_psi4` to convert a PyMOL-exported PDB (ATOM/HETATM) directly into a runnable Psi4 input:
+
+```bash
+rinrus_pymol_to_psi4 model.pdb -o input.dat --charge 0 --mult 1 --job energy
+```
+
+Optional filters and constraints:
+
+```bash
+rinrus_pymol_to_psi4 model.pdb -o input.dat --charge 0 --mult 1 --job opt --exclude-waters --exclude-ions --freeze-mode pdb-serial --freeze "12,15,18-25"
+```
+
+
 ## Contributors
 This code was conceptualized in the DeYonker group at the University of Memphis Department of Chemistry.
 Prof. Qianyi Cheng was the primary contributor to early versions of RINRUS, who now runs her independent research group at University of Memphis.
