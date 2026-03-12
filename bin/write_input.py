@@ -113,7 +113,12 @@ if __name__ == '__main__':
     # general options
     parser.add_argument('-m', dest='multiplicity', default=1, type=int, help='multiplicity')
     parser.add_argument('-c', dest='ligand_charge', default=0, type=int, help='charge of ligand')
-    parser.add_argument('-format',dest='fmat',default=None,help="input file format eg.'gaussian','qchem','gau-xtb','orca','psi4-fsapt'")
+    parser.add_argument('-format',dest='fmat',default=None,help="input file format eg.'gaussian','qchem','gau-xtb','orca','psi4','psi4-fsapt'")
+    parser.add_argument('--method', dest='method', default='b3lyp-d3bj', help='method for psi4 format')
+    parser.add_argument('--basis', dest='basis', default='def2-svp', help='basis for psi4 format')
+    parser.add_argument('--job', dest='job', default='energy', help='job for psi4 format: energy/opt/freq')
+    parser.add_argument('--mem', dest='mem', default=8, type=int, help='memory in GB for psi4 format')
+    parser.add_argument('--threads', dest='threads', default=8, type=int, help='threads for psi4 format')
     parser.add_argument('-intmp', dest='input_tmp', default=None, help='input file template (uses ones in RINRUS/templates/ if not specified)')
     parser.add_argument('-inpn', dest='inp_name', default='1.inp', help='input name')
     parser.add_argument('-basisinfo',dest='basisinfo',default=None,help="'intmp' if in template file, use dictionary otherwise")
@@ -210,7 +215,7 @@ if __name__ == '__main__':
         res_count = args.new_pdb
         ifmat = "psi4-fsapt"
 
-    if int_tmp == None or int_tmp == '':
+    if (int_tmp == None or int_tmp == '') and ifmat != 'psi4':
         #tmpltdir = Path.home() / 'git' / 'RINRUS' / 'template_files'
         tmpltdir = Path(__file__).parents[1] / 'template_files'
         int_tmp = tmpltdir / f'{ifmat}_input_template.txt'
@@ -224,6 +229,8 @@ if __name__ == '__main__':
         write_xtb_input('%s/%s'%(wdir,inp_name),int_tmp,charge,multi,pic_atom,tot_charge,res_count)
     elif ifmat == "orca":
         write_orca_input('%s/%s'%(wdir,inp_name),int_tmp,charge,multi,pic_atom,tot_charge,res_count,hopt)
+    elif ifmat == "psi4":
+        write_psi4_input('%s/%s'%(wdir,inp_name),charge,multi,pic_atom,tot_charge,res_count,args.method,args.basis,args.job,args.mem,args.threads)
     elif ifmat == "psi4-fsapt":
         seed = args.seed
         if inp_name == "1.inp":
