@@ -1,7 +1,5 @@
 """Utilities for converting PyMOL-exported PDB structures to Psi4 input files."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
